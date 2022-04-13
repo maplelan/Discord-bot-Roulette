@@ -1,4 +1,3 @@
-# Discord-bot-Roulette
-Discord機器人 輪盤
+# Discord 輪盤機器人 
 
 輪盤機器人
