@@ -37,26 +37,30 @@ Roulette_Bot.on('messageCreate', message => {
         }
       }
       if(!help){
-        try{
-          comp_json = JSON.parse(original_str);
-        }catch(error){
-          console.log("無法以JSON解析");
-          //message.reply('無法解析下注方式\" ' + original_str + ' \"');
+        if(original_str.indexOf("[") != -1 && original_str.indexOf("{") != -1 ){
+          try{
+            comp_json = JSON.parse(original_str);
+          }catch(error){
+            //console.log("無法以JSON解析");
+            //message.reply('無法解析下注方式\" ' + original_str + ' \"');
+            try_json = false;
+          }
+        }else{
           try_json = false;
         }
         if(!try_json){//如果JSON無法解析 試試字串切分
           comp_json = [];
-          const sp_space = original_str.split(/\s|\s下注|下注/);
+          const sp_space = original_str.split(/\s|\s下注|下注/);//下注切分
           //console.log(sp_space.length);
           if(sp_space.length > 0){
             for(let i = 0; i < sp_space.length; i++){
               if(sp_space[i] == ""){
                 continue;
               }else{
-                const sp_dot = sp_space[i].split(/\.|\||賭注/);
+                const sp_dot = sp_space[i].split(/\.|\||賭注/);//賭注切分
                 //console.log(sp_dot);
                 if(sp_dot.length == 2){
-                  const sp_comma = sp_dot[0].split(",");
+                  const sp_comma = sp_dot[0].split(",");//下注方式切分
                   let smi_json = {};
                   smi_json.betstype = sp_comma;
                   smi_json.bets =sp_dot[1];
@@ -76,7 +80,7 @@ Roulette_Bot.on('messageCreate', message => {
           for(let i = 0; i < comp_json.length; i++){//查看每條下注
             let stand = roulette_stand(comp_json[i]);
             //console.log(stand);
-            if(stand === 0){
+            if(stand === 0){//當下注無法被解析時會回傳0
               //message.reply('無法解析下注方式\" ' + JSON.stringify(comp_json[i]) + ' \"');
               needhelp(message);
               pass = false;
@@ -86,17 +90,17 @@ Roulette_Bot.on('messageCreate', message => {
             }
           }
           if(pass){//如果輸入的都正確
-            console.log("成功解析下注");
+            //console.log("成功解析下注");
             //console.log(stand_json);
             let usermoney = 0;
             //將usermoney設定為玩家的現有金錢量
-            if(usermoney >= needmoney(stand_json) || true){//錢夠的話
+            if(usermoney >= needmoney(stand_json) || true){//錢夠的話 設定完usermoney之後刪掉||true
               let ball = Math.floor(Math.random() * 37);
               Roulette_checkwin(stand_json,ball);
               //console.log(stand_json);
               let get = getmoney(stand_json);
               let get_str = "";
-              switch(true){
+              switch(true){//設定輸贏錢文字
                 case (get > 0):
                   get_str = "你贏得了" + get + moneyunit;
                   break;
@@ -508,7 +512,7 @@ function rephelp(message){//幫助
   str += '然後使用\"賭注\"、\".\"、\"|\"分割下注方式和賭注，下注方式中的多個數字或字母以\",\"分割\n';
   str += '\n下注範例:\n輪盤 下注0賭注10 下注1,2,4,5賭注50 下注e,f賭注10 下注紅賭注20 下注ODD賭注30\n';
   str += '輪盤 0|10 1,2,4,5|50 e,F|10 紅|20 ODD|30\n輪盤 0.10 1,2,4,5.50 e,f.10 紅.20 ODD.30';
-  message.reply(str + '\nhttps://raw.githubusercontent.com/maplelan/Discord-bot-Roulette/main/table.png');
+  message.reply(str + '\nhttps://raw.githubusercontent.com/maplelan/Discord_bot_Roulette/main/table.png');
 }
 
 function needhelp(message){//需要幫助
